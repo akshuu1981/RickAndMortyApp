@@ -4,12 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -19,9 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.akshat.network.KtorClient
 import com.akshat.network.data.domain.Character
 import com.akshat.rickandmorty.ui.screens.CharacterDetailScreen
+import com.akshat.rickandmorty.ui.screens.EpisodeScreen
 import com.akshat.rickandmorty.ui.theme.RickAndMortyTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,8 +41,10 @@ class MainActivity : ComponentActivity() {
             var character by remember {
                 mutableStateOf<Character?>(null)
             }
+
+
             RickAndMortyTheme {
-                ScaffoldAppUI(1)
+                ScaffoldAppUI(17)
             }
         }
     }
@@ -44,11 +52,25 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ScaffoldAppUI(characterId: Int) {
+        val navController = rememberNavController()
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = { RickAndMortyTopAppBar() }) { innerPadding ->
-            Column(modifier = Modifier.padding(paddingValues = innerPadding)) {
-                CharacterDetailScreen(client, characterId = characterId)
+            Surface(modifier = Modifier.padding(paddingValues = innerPadding)) {
+                NavHost(navController = navController,
+                    startDestination = "detailScreen"){
+                    composable(route = "detailScreen") {
+                        CharacterDetailScreen(ktorClient = client,
+                            characterId=characterId,
+                            onEpisodeClick = { navController.navigate("episodes/$characterId") } )
+                    }
+                    // Need to call out the arguments being passed in the route
+                    composable (route="episodes/{characterId}",
+                        arguments = listOf(navArgument("characterId") {type = NavType.IntType})) { backstackEntry ->
+                        val characterId = backstackEntry.arguments?.getInt("characterId") ?: 0
+                        EpisodeScreen(characterId = characterId)
+                    }
+                }
             }
         }
     }

@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,16 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.akshat.network.KtorClient
 import com.akshat.network.data.domain.Character
 import com.akshat.network.data.domain.CharacterStatus
@@ -44,13 +37,13 @@ import com.akshat.rickandmorty.components.character.DataPointComponent
 import com.akshat.rickandmorty.data.DataPoint
 import com.akshat.rickandmorty.ui.theme.Pink80
 import kotlinx.coroutines.delay
-import kotlin.collections.buildList
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun CharacterDetailScreen(
     ktorClient: KtorClient,
-    characterId : Int
+    characterId : Int,
+    onEpisodeClick: (Int) -> Unit
 ){
 
     var character by remember { mutableStateOf<Character?>(null) }
@@ -73,7 +66,13 @@ fun CharacterDetailScreen(
     }
     LaunchedEffect(Unit) {
         delay(2.seconds)
-        character = ktorClient.getCharacter(characterId)
+        val apiOperation = ktorClient.getCharacter(characterId)
+            .onSuccess {
+                character = it
+            }
+            .onFailure { exception ->
+
+            }
     }
 
     LazyColumn(
@@ -119,7 +118,7 @@ fun CharacterDetailScreen(
         // Button
         item {
             Button(
-                onClick = { },
+                onClick = { onEpisodeClick(characterId) },
                 modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth()
 
             ) {
@@ -158,5 +157,5 @@ fun PreviewCharacterDetailsNamePlateComponentAlive(){
 @Preview
 @Composable
 fun PreviewCharacterDetailScreen(){
-    CharacterDetailScreen(KtorClient(),1)
+    CharacterDetailScreen(KtorClient(),1, onEpisodeClick = {})
 }

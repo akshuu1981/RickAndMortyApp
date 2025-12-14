@@ -14,6 +14,7 @@ serializer = "2.2.0"
 ktorClient = "2.3.6"
 kotlinxSerialization = "1.7.1" # Version for the serialization library
 coil = "3.3.0"
+nav_compose = "2.9.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClient" }
 coil = { group = "io.coil-kt.coil3", name ="coil-compose", version.ref = "coil"}
+andriodx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "nav_compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
