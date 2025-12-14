@@ -58,6 +58,6 @@ fun RemoteCharacter.toDomainCharacter(): Character {
         species = species,
         type = type,
         created = created,
-        episodeUrls = episode
+        episodeUrls = episode.map { it.split("/").last().toInt() }
     )
 }

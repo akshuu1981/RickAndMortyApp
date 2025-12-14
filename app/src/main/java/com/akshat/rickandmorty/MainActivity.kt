@@ -41,10 +41,8 @@ class MainActivity : ComponentActivity() {
             var character by remember {
                 mutableStateOf<Character?>(null)
             }
-
-
             RickAndMortyTheme {
-                ScaffoldAppUI(17)
+                ScaffoldAppUI(1)
             }
         }
     }
@@ -68,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     composable (route="episodes/{characterId}",
                         arguments = listOf(navArgument("characterId") {type = NavType.IntType})) { backstackEntry ->
                         val characterId = backstackEntry.arguments?.getInt("characterId") ?: 0
-                        EpisodeScreen(characterId = characterId)
+                        EpisodeScreen(client = client,characterId = characterId)
                     }
                 }
             }

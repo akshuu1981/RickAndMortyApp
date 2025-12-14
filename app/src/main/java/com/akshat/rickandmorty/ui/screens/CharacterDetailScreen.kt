@@ -1,5 +1,6 @@
 package com.akshat.rickandmorty.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -65,7 +66,6 @@ fun CharacterDetailScreen(
         }
     }
     LaunchedEffect(Unit) {
-        delay(2.seconds)
         val apiOperation = ktorClient.getCharacter(characterId)
             .onSuccess {
                 character = it
@@ -94,18 +94,7 @@ fun CharacterDetailScreen(
 
         // Image
         item {
-            SubcomposeAsyncImage(
-                model = character!!.imageUrl, /*ImageRequest.Builder(LocalContext.current)
-                    .data(character?.imageUrl)
-                    .crossfade(true)
-                    .build(),*/
-                //placeholder = painterResource(R.drawable.placeholder),
-                contentDescription = "image of ${character?.name}",
-                modifier = Modifier.fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .aspectRatio(1f),
-                loading = { LoadingState() }
-            )
+            CharacterImage(character)
         }
         // Details about the character
         items(characterDataPoints) { points ->
@@ -132,6 +121,28 @@ fun CharacterDetailScreen(
 }
 
 @Composable
+fun CharacterImage(character: Character?) {
+    SubcomposeAsyncImage(
+        model = character!!.imageUrl, /*ImageRequest.Builder(LocalContext.current)
+                    .data(character?.imageUrl)
+                    .crossfade(true)
+                    .build(),*/
+        //placeholder = painterResource(R.drawable.placeholder),
+        contentDescription = "image of ${character.name}",
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .aspectRatio(1f),
+        loading = {
+            Log.d("CharacterDetail","Loading image : ${character.imageUrl}")
+            LoadingState() },
+        error = { e->
+            Log.d("CharacterDetail","Error loading image : ${e.result.throwable}")
+        }
+    )
+}
+
+@Composable
 fun LoadingState() {
     CircularProgressIndicator(
         modifier = Modifier.fillMaxSize()
@@ -144,8 +155,13 @@ fun LoadingState() {
 fun CharacterDetailsNamePlateComponent(name: String, status: CharacterStatus) {
     Column(modifier = Modifier.fillMaxWidth()) {
         CharacterStatusComponent(status)
-        Text(text = name, fontSize = 42.sp, fontWeight = FontWeight.Bold, color = Pink80)
+        CharacterNameComponent(name)
     }
+}
+
+@Composable
+fun CharacterNameComponent(name: String) {
+    Text(text = name, fontSize = 42.sp, fontWeight = FontWeight.Bold, color = Pink80)
 }
 
 @Preview

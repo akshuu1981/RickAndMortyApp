@@ -1,8 +1,12 @@
 package com.akshat.network
 
+import android.util.Log
 import com.akshat.network.data.domain.Character
+import com.akshat.network.data.domain.Episode
 import com.akshat.network.data.remote.RemoteCharacter
+import com.akshat.network.data.remote.RemoteEpisode
 import com.akshat.network.data.remote.toDomainCharacter
+import com.akshat.network.data.remote.toDomainEpisode
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -28,15 +32,32 @@ class KtorClient {
         }
     }
 
+    private var cache = mutableMapOf<Int, Character>()
+
     suspend fun getCharacter(id: Int): ApiOperation<Character>{
+        cache[id]?.let {
+            Log.d("KtorClient", "Returning cached character")
+            return ApiOperation.Success(it) }
         return safeApiCall {
             Client.get("https://rickandmortyapi.com/api/character/$id")
                 .body<RemoteCharacter>()
                 .toDomainCharacter()
+                .also { cache[id] = it }
 
         }
     }
 
+    suspend fun getEpisodes(episodeIds: List<Int>): ApiOperation<List<Episode>>{
+        val episodesList = episodeIds.joinToString(separator = ",")
+        Log.d("KtorClient", "Getting episodes $episodesList")
+        return safeApiCall {
+            Client.get("https://rickandmortyapi.com/api/episode/$episodesList")
+                .body<List<RemoteEpisode>>()
+                .map {  it.toDomainEpisode() }
+//                .also { cache[id] = it }
+
+        }
+    }
     private inline fun <T> safeApiCall(apiCall: () -> T): ApiOperation<T>{
         return try{
             ApiOperation.Success(data = apiCall())

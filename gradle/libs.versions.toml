@@ -41,6 +41,7 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClient" }
 coil = { group = "io.coil-kt.coil3", name ="coil-compose", version.ref = "coil"}
+coil-okhttp = { group = "io.coil-kt.coil3", name ="coil-network-okhttp", version.ref = "coil"}
 andriodx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "nav_compose" }
 
 [plugins]
