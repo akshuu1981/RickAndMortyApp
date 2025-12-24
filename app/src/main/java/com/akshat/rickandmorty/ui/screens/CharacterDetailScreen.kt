@@ -33,12 +33,10 @@ import coil3.compose.SubcomposeAsyncImage
 import com.akshat.network.KtorClient
 import com.akshat.network.data.domain.Character
 import com.akshat.network.data.domain.CharacterStatus
-import com.akshat.rickandmorty.components.character.CharacterStatusComponent
-import com.akshat.rickandmorty.components.character.DataPointComponent
+import com.akshat.rickandmorty.ui.components.character.CharacterStatusComponent
+import com.akshat.rickandmorty.ui.components.character.DataPointComponent
 import com.akshat.rickandmorty.data.DataPoint
 import com.akshat.rickandmorty.ui.theme.Pink80
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun CharacterDetailScreen(
@@ -74,7 +72,6 @@ fun CharacterDetailScreen(
 
             }
     }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(all = 16.dp)

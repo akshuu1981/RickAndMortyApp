@@ -1,4 +1,4 @@
-package com.akshat.rickandmorty.components.episodes
+package com.akshat.rickandmorty.ui.components.episodes
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

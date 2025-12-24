@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
+    alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -56,7 +57,8 @@ dependencies {
     implementation(libs.andriodx.navigation)
 
     implementation(project(":network"))
-
+    implementation(libs.hilt.dagger)
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

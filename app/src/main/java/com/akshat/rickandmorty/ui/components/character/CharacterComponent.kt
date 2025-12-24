@@ -1,8 +1,7 @@
-package com.akshat.rickandmorty.components.character
+package com.akshat.rickandmorty.ui.components.character
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -27,8 +26,8 @@ fun CharacterStatusComponent(characterStatus: CharacterStatus){
             .border(width = 2.dp,color = characterStatus.color, shape = RoundedCornerShape(12.dp))
             .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 48.dp)
     ) {
-        Text(text = "Status: ", fontSize = 20.sp)
-        Text(text = characterStatus.displayName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text = "Status: ", fontSize = 18.sp)
+        Text(text = characterStatus.displayName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }
 

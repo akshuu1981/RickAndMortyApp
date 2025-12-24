@@ -29,10 +29,15 @@ import com.akshat.network.data.domain.Character
 import com.akshat.rickandmorty.ui.screens.CharacterDetailScreen
 import com.akshat.rickandmorty.ui.screens.EpisodeScreen
 import com.akshat.rickandmorty.ui.theme.RickAndMortyTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val client: KtorClient = KtorClient()
+    @Inject
+    lateinit var client: KtorClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf<Character?>(null)
             }
             RickAndMortyTheme {
-                ScaffoldAppUI(1)
+                ScaffoldAppUI(114)
             }
         }
     }

@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlinx-serialization")
+    alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -58,7 +60,8 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.kotlinx.serialization.json)
-
+    implementation(libs.hilt.dagger)
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,6 +1,7 @@
 package com.akshat.network
 
 import android.util.Log
+import androidx.compose.material3.SuggestionChip
 import com.akshat.network.data.domain.Character
 import com.akshat.network.data.domain.Episode
 import com.akshat.network.data.remote.RemoteCharacter
@@ -35,6 +36,7 @@ class KtorClient {
     private var cache = mutableMapOf<Int, Character>()
 
     suspend fun getCharacter(id: Int): ApiOperation<Character>{
+        Log.d("AAA","getting Character: Thread context = ${Thread.currentThread().name}")
         cache[id]?.let {
             Log.d("KtorClient", "Returning cached character")
             return ApiOperation.Success(it) }
@@ -47,15 +49,29 @@ class KtorClient {
         }
     }
 
-    suspend fun getEpisodes(episodeIds: List<Int>): ApiOperation<List<Episode>>{
-        val episodesList = episodeIds.joinToString(separator = ",")
-        Log.d("KtorClient", "Getting episodes $episodesList")
+    suspend fun getEpisode(episodeId: Int): ApiOperation<Episode>{
+
+        Log.d("KtorClient", "Getting episode $episodeId")
         return safeApiCall {
-            Client.get("https://rickandmortyapi.com/api/episode/$episodesList")
-                .body<List<RemoteEpisode>>()
-                .map {  it.toDomainEpisode() }
+            Client.get("https://rickandmortyapi.com/api/episode/$episodeId")
+                .body<RemoteEpisode>()
+                .toDomainEpisode()
+//                .also { cache[id] = it }
+        }
+    }
+    suspend fun getEpisodes(episodeIds: List<Int>): ApiOperation<List<Episode>>{
+        if(episodeIds.size == 1){
+            return getEpisode(episodeIds.first()).mapSuccess { listOf(it) }
+        }else {
+            val episodesList = episodeIds.joinToString(separator = ",")
+            Log.d("KtorClient", "Getting episodes $episodesList")
+            return safeApiCall {
+                Client.get("https://rickandmortyapi.com/api/episode/$episodesList")
+                    .body<List<RemoteEpisode>>()
+                    .map { it.toDomainEpisode() }
 //                .also { cache[id] = it }
 
+            }
         }
     }
     private inline fun <T> safeApiCall(apiCall: () -> T): ApiOperation<T>{
@@ -70,6 +86,13 @@ class KtorClient {
 sealed interface ApiOperation<T>{
     data class Success<T>(val data: T): ApiOperation<T>
     data class Failure<T>(val exception: Exception): ApiOperation<T>
+
+    fun <R> mapSuccess(transform: (T) -> R): ApiOperation<R>{
+        return when(this) {
+            is Success -> Success(transform(data))
+            is Failure -> Failure(exception)
+        }
+    }
 
     fun onSuccess(block: (T) -> Unit): ApiOperation<T>{
         if(this is Success) block(data)
