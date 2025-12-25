@@ -18,102 +18,84 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.SubcomposeAsyncImage
-import com.akshat.network.KtorClient
 import com.akshat.network.data.domain.Character
 import com.akshat.network.data.domain.CharacterStatus
+import com.akshat.rickandmorty.state.CharacterDetailViewState
 import com.akshat.rickandmorty.ui.components.character.CharacterStatusComponent
 import com.akshat.rickandmorty.ui.components.character.DataPointComponent
-import com.akshat.rickandmorty.data.DataPoint
 import com.akshat.rickandmorty.ui.theme.Pink80
 
 @Composable
 fun CharacterDetailScreen(
-    ktorClient: KtorClient,
     characterId : Int,
+    viewModel: CharacterDetailsViewModel = hiltViewModel(),
     onEpisodeClick: (Int) -> Unit
 ){
 
-    var character by remember { mutableStateOf<Character?>(null) }
-
-    val characterDataPoints: List<DataPoint> by remember {
-        derivedStateOf {
-            buildList {
-                character?.let { character ->
-                    add(DataPoint("Last known location", character.location.name))
-                    add(DataPoint("Species", character.species))
-                    add(DataPoint("Gender", character.gender.gender))
-                    add(DataPoint("Origin", character.origin.name))
-                    add(DataPoint("Episode count", character.episodeUrls.size.toString()))
-                    character.type.takeIf { it.isNotEmpty() }?.let { type ->
-                        add(DataPoint("Type", type))
-                    }
-                }
-            }
-        }
-    }
     LaunchedEffect(Unit) {
-        val apiOperation = ktorClient.getCharacter(characterId)
-            .onSuccess {
-                character = it
-            }
-            .onFailure { exception ->
-
-            }
+       viewModel.fetchCharacter(characterId)
     }
+    val state by viewModel.stateFlow.collectAsState()
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(all = 16.dp)
     ) {
-        if(character == null){
-            item { LoadingState() }
-            return@LazyColumn
-        }
-        item {
-            CharacterDetailsNamePlateComponent(
-                name = character!!.name,
-                status = character!!.status
-            )
-        }
+        when (val viewState = state) {
+            is CharacterDetailViewState.Loading -> {
+                item { LoadingState() }
+            }
 
-        item { Spacer(modifier = Modifier.height(8.dp)) }
+            is CharacterDetailViewState.Error -> { }
+            is CharacterDetailViewState.Success -> {
 
-        // Image
-        item {
-            CharacterImage(character)
-        }
-        // Details about the character
-        items(characterDataPoints) { points ->
-            Spacer(modifier = Modifier.height(32.dp))
-            DataPointComponent(dataPoint = points)
-        }
+                item {
+                    CharacterDetailsNamePlateComponent(
+                        name = viewState.character.name,
+                        status = viewState.character.status
+                    )
+                }
 
-        item { Spacer(modifier = Modifier.height(32.dp))}
+                item { Spacer(modifier = Modifier.height(8.dp)) }
 
-        // Button
-        item {
-            Button(
-                onClick = { onEpisodeClick(characterId) },
-                modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth()
+                // Image
+                item {
+                    CharacterImage(viewState.character)
+                }
+                // Details about the character
+                items(viewState.datapoints) { points ->
+                    Spacer(modifier = Modifier.height(32.dp))
+                    DataPointComponent(dataPoint = points)
+                }
 
-            ) {
-                Text("View all episodes")
+                item { Spacer(modifier = Modifier.height(32.dp)) }
+
+                // Button
+                item {
+                    Button(
+                        onClick = { onEpisodeClick(characterId) },
+                        modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth()
+
+                    ) {
+                        Text("View all episodes")
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(64.dp)) }
+
             }
         }
-
-        item { Spacer(modifier = Modifier.height(64.dp))}
-
     }
 }
 
@@ -170,5 +152,5 @@ fun PreviewCharacterDetailsNamePlateComponentAlive(){
 @Preview
 @Composable
 fun PreviewCharacterDetailScreen(){
-    CharacterDetailScreen(KtorClient(),1, onEpisodeClick = {})
+    CharacterDetailScreen(1, viewModel(), onEpisodeClick = {})
 }

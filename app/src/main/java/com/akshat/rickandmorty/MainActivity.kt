@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController,
                     startDestination = "detailScreen"){
                     composable(route = "detailScreen") {
-                        CharacterDetailScreen(ktorClient = client,
+                        CharacterDetailScreen(
                             characterId=characterId,
                             onEpisodeClick = { navController.navigate("episodes/$characterId") } )
                     }
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     composable (route="episodes/{characterId}",
                         arguments = listOf(navArgument("characterId") {type = NavType.IntType})) { backstackEntry ->
                         val characterId = backstackEntry.arguments?.getInt("characterId") ?: 0
-                        EpisodeScreen(client = client,characterId = characterId)
+                        EpisodeScreen(characterId = characterId)
                     }
                 }
             }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akshat.network.KtorClient
 import com.akshat.network.data.domain.Character
 import com.akshat.network.data.domain.CharacterGender
@@ -32,34 +34,26 @@ import com.akshat.network.data.domain.Episode
 import com.akshat.rickandmorty.ui.components.character.DataPointComponent
 import com.akshat.rickandmorty.ui.components.episodes.EpisodeRowComponent
 import com.akshat.rickandmorty.data.DataPoint
+import com.akshat.rickandmorty.state.EpisodeViewState
 import com.akshat.rickandmorty.ui.theme.Pink80
 import kotlinx.coroutines.launch
 
 @Composable
-fun EpisodeScreen(characterId: Int, client: KtorClient) {
-
-    var characterState by remember { mutableStateOf<Character?>(null) }
-    var episodeState by remember { mutableStateOf<List<Episode>>(emptyList()) }
-
+fun EpisodeScreen(characterId: Int,
+                  viewModel: EpisodesViewModel = hiltViewModel()
+) {
     LaunchedEffect(Unit) {
-        client.getCharacter(characterId).onSuccess { character ->
-            characterState = character
-            launch {
-                client.getEpisodes(character.episodeUrls).onSuccess { episodes ->
-                    episodeState = episodes
-                }.onFailure {e ->
-                    Log.d("EpisodeScreen", "Error getting episodes : $e")
-                }
-            }
-        }.onFailure {e->
-            Log.d("EpisodeScreen", "Error getting characters : $e")
-        }
+        viewModel.fetchEpisodes(characterId)
     }
 
-    characterState?.let {
-        EpisodeListScreen(character = it,episodes = episodeState)
-    } ?: LoadingState()
+    val state by viewModel.uiState.collectAsState()
+    when(val viewState = state){
+        is EpisodeViewState.Loading -> { LoadingState() }
+        is EpisodeViewState.Error -> { Log.d("EpisodeScreen", "Error: ${viewState.message}") }
+        is EpisodeViewState.Success -> { EpisodeListScreen(character = viewState.character,
+            episodes = viewState.episodes)}
 
+    }
 }
 
 @Composable

@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.okhttp)
     implementation(libs.andriodx.navigation)
+    implementation(libs.hilt.nav.compose)
 
     implementation(project(":network"))
     implementation(libs.hilt.dagger)
